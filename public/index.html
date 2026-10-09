@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Solace</title>
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem("dd-theme") ||
+        (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light");
+    </script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div class="logo">
+          <span class="logo-ico" aria-hidden="true">✦</span>
+          <div>
+            <h1>
+              Solace<span>.exe</span><i class="blink" aria-hidden="true">_</i>
+            </h1>
+            <small>your little corner of the universe</small>
+          </div>
+        </div>
+        <div class="bar">
+          <span id="today" class="mono"></span
+          ><button class="btn" id="sndBtn" aria-pressed="true">🔊 Sound</button
+          ><button class="btn" id="themeBtn">◐ Theme</button
+          ><button class="btn" id="dataBtn">Backup</button>
+        </div>
+      </header>
+
+      <section class="card profile" aria-label="Profile">
+        <div class="avatar">
+          <img id="avatar" alt="Profile photo" /><button
+            class="btn mini"
+            id="editProfile"
+            aria-label="Edit profile"
+          >
+            ✎
+          </button>
+        </div>
+        <div class="info">
+          <h2 id="pName"></h2>
+          <p><b>Hobbies:</b> <span id="pHob"></span></p>
+          <p><b>Current goal:</b> <span id="pGoal"></span></p>
+          <p id="pBio" class="muted"></p>
+        </div>
+        <aside class="thought todo">
+          <span class="mono tag">TO-DO</span>
+          <form id="todoForm" class="todo-add">
+            <input
+              id="todoIn"
+              maxlength="80"
+              placeholder="Add a task…"
+              aria-label="New task"
+              autocomplete="off"
+            /><button class="btn mini" aria-label="Add task">＋</button>
+          </form>
+          <ul id="todoList" class="todo-list"></ul>
+          <button type="button" class="btn mini" id="todoClear">
+            ✓ Clear done
+          </button>
+        </aside>
+      </section>
+
+      <button
+        class="card quote"
+        id="quoteCard"
+        aria-label="Choose quote category"
+      >
+        <span class="mono tag" id="quoteCat"></span><q id="quoteTxt"></q
+        ><small>click to choose a category ✦</small>
+      </button>
+
+      <section class="stats" aria-label="Statistics">
+        <div class="card stat"><b id="sNotes">0</b>cassettes</div>
+        <div class="card stat"><b id="sPhotos">0</b>photos</div>
+        <div class="card stat"><b id="sDays">0</b>days remembered</div>
+      </section>
+
+      <section class="card" aria-labelledby="tapesH">
+        <div class="head">
+          <div>
+            <h2 id="tapesH">📼 Notes</h2>
+            <small class="muted">press play on a memory</small>
+          </div>
+          <div class="tools">
+            <input
+              type="search"
+              id="search"
+              placeholder="Search title, text, tag"
+              aria-label="Search diary"
+            /><input
+              type="date"
+              id="noteDate"
+              aria-label="Filter notes by date"
+            /><button class="btn" id="addNote">+ Add a cassette</button>
+          </div>
+        </div>
+        <div id="tapes" class="tapes"></div>
+      </section>
+
+      <section class="card" aria-labelledby="picH">
+        <div class="head">
+          <div>
+            <h2 id="picH">📷 Picture</h2>
+            <small class="muted">little scraps of days</small>
+          </div>
+          <div class="tools">
+            <input
+              type="date"
+              id="photoDate"
+              aria-label="Filter photos by date"
+            /><button class="btn" id="clearDates">All dates</button
+            ><button class="btn" id="addPic">+ Add pic</button>
+          </div>
+        </div>
+        <div id="photos" class="photos"></div>
+      </section>
+      <footer class="muted mono">
+        Everything stays in this browser. Clearing browser data erases it —
+        export backups!
+      </footer>
+    </div>
+    <div id="toasts" aria-live="polite"></div>
+
+    <dialog id="noteDlg">
+      <form id="noteForm" method="dialog">
+        <h3 id="noteH">New cassette</h3>
+        <label>Title<input name="title" maxlength="80" required /></label
+        ><label>Memory date<input type="date" name="date" required /></label>
+        <label>Tags (comma separated)<input name="tags" maxlength="80" /></label
+        ><label
+          >Thoughts<textarea
+            name="body"
+            rows="8"
+            maxlength="5000"
+            required
+          ></textarea>
+        </label>
+        <small id="noteErr" class="err" role="alert"></small>
+        <div class="row">
+          <button type="button" class="btn" data-close>Cancel</button
+          ><button class="btn pri">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="profDlg">
+      <form id="profForm" method="dialog">
+        <h3>Edit profile</h3>
+        <label>Name<input name="name" maxlength="40" required /></label
+        ><label>Hobbies<input name="hobbies" maxlength="120" /></label>
+        <label>Current goal<input name="goal" maxlength="120" /></label
+        ><label
+          >About<textarea name="bio" rows="3" maxlength="240"></textarea>
+        </label>
+        <label>Photo<input type="file" name="avatar" accept="image/*" /></label
+        ><label class="chk"
+          ><input type="checkbox" name="rmAvatar" /> Remove photo</label
+        >
+        <small id="profErr" class="err" role="alert"></small>
+        <div class="row">
+          <button type="button" class="btn" data-close>Cancel</button
+          ><button class="btn pri">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="quoteDlg">
+      <h3>Pick a vibe</h3>
+      <div class="row">
+        <button class="btn cat" data-cat="funny">😹<br />Funny</button
+        ><button class="btn cat" data-cat="motivational">
+          🌱<br />Motivational
+        </button>
+      </div>
+      <div class="row">
+        <button class="btn" id="shuffleQuote">⟳ Shuffle</button
+        ><button class="btn" data-close>Done</button>
+      </div>
+    </dialog>
+
+    <dialog id="picDlg">
+      <form id="picForm" method="dialog">
+        <h3>Add pics</h3>
+        <label
+          >Images<input
+            type="file"
+            name="files"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
+            required
+        /></label>
+        <label>Caption (optional)<input name="caption" maxlength="120" /></label
+        ><label>Memory date<input type="date" name="date" required /></label>
+        <small id="picErr" class="err" role="alert"></small>
+        <div class="row">
+          <button type="button" class="btn" data-close>Cancel</button
+          ><button class="btn pri">Add</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="viewDlg" class="view">
+      <img id="viewImg" alt="" /><label
+        >Caption<input id="viewCap" maxlength="120"
+      /></label>
+      <div class="row">
+        <button class="btn" id="viewDel">Delete</button
+        ><button class="btn pri" id="viewSave">Save caption</button
+        ><button class="btn" data-close>Close</button>
+      </div>
+    </dialog>
+
+    <dialog id="dataDlg">
+      <h3>Backup</h3>
+      <p class="muted">
+        Export a JSON file with everything, including photos. Import validates
+        before changing anything.
+      </p>
+      <div class="row">
+        <button class="btn pri" id="exportBtn">Export backup</button
+        ><label class="btn"
+          >Import…<input
+            type="file"
+            id="importFile"
+            accept=".json,application/json"
+            hidden
+        /></label>
+      </div>
+      <p id="importInfo"></p>
+      <div class="row" id="importAct" hidden>
+        <button class="btn" id="doMerge">Merge (keep existing)</button
+        ><button class="btn" id="doReplace">Replace all</button>
+      </div>
+      <div class="row"><button class="btn" data-close>Close</button></div>
+    </dialog>
+
+    <dialog id="confirmDlg">
+      <p id="confirmTxt"></p>
+      <div class="row">
+        <button class="btn" id="confirmNo">Cancel</button
+        ><button class="btn pri" id="confirmYes">Yes</button>
+      </div>
+    </dialog>
+
+    <div
+      id="scene"
+      class="scene"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Memory playback"
+      hidden
+    >
+      <div class="stars" aria-hidden="true"></div>
+      <div class="mono pb-label">MEMORY PLAYBACK</div>
+      <div class="flycas cas" aria-hidden="true">
+        <div class="win"><i class="reel"></i><i class="reel"></i></div>
+      </div>
+      <div class="tv">
+        <div class="screen">
+          <div class="crt">
+            <div class="crt-in">
+              <h3 id="tvTitle"></h3>
+              <div class="mono" id="tvMeta"></div>
+              <div id="tvBody" class="tvbody"></div>
+            </div>
+          </div>
+        </div>
+        <div class="knobs">
+          <button
+            type="button"
+            class="knob"
+            id="kMax"
+            aria-pressed="false"
+            aria-label="Maximise screen"
+            title="Maximise screen"
+          >
+            ⤢</button
+          ><button
+            type="button"
+            class="knob"
+            id="kBig"
+            aria-pressed="false"
+            aria-label="Larger text"
+            title="Larger text"
+          >
+            A</button
+          ><span></span>
+        </div>
+      </div>
+      <div class="row sceneBtns">
+        <button class="btn" id="tvEdit">✎ Edit memory</button
+        ><button class="btn pri" id="tvClose">⏏ Eject cassette</button>
+      </div>
+    </div>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
